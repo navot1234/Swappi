@@ -8,22 +8,60 @@ jobs:
   frontend:
     name: Frontend CI
     runs-on: ubuntu-latest
+    env:
+      PREVIEW_PORT: 4173
+    defaults:
+      run:
+        working-directory: ./frontend
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
       - name: Install dependencies
-        run: echo "Install dependencies"
+        run: npm ci
       
       - name: Linter and Formatter
-        run: echo "Run linter and formatter"
+        run: npm run lint
       
       - name: Run tests
         run: echo "Run tests"
       
       - name: Build
-        run: echo "Build"
+        run: npm run build
+      
+      - name: Validate build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Error: dist directory not found. Build may have failed."
+            exit 1
+          fi
+          if [ ! -f "dist/index.html" ]; then
+            echo "Error: dist/index.html not found. Build output is incomplete."
+            exit 1
+          fi
+          echo "Build output validated successfully"
+          ls -la dist/
+      
+      - name: Preview build
+        run: |
+          npx vite preview --port $PREVIEW_PORT --host 0.0.0.0 &
+          PREVIEW_PID=$!
+          sleep 3
+          if ! curl -f --max-time 10 http://localhost:$PREVIEW_PORT > /dev/null 2>&1; then
+            kill $PREVIEW_PID 2>/dev/null || true
+            echo "Error: Build preview is not accessible on port $PREVIEW_PORT"
+            exit 1
+          fi
+          kill $PREVIEW_PID 2>/dev/null || true
+          echo "Build preview validated successfully - app is working on port $PREVIEW_PORT"
 
   backend:
     name: Backend CI
