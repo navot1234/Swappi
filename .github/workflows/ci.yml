@@ -9,10 +9,6 @@ jobs:
     name: Frontend CI
     runs-on: ubuntu-latest
     
-    defaults:
-      run:
-        working-directory: ./frontend
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,10 +31,6 @@ jobs:
   backend:
     name: Backend CI
     runs-on: ubuntu-latest
-    
-    defaults:
-      run:
-        working-directory: ./backend
     
     steps:
       - name: Checkout code
