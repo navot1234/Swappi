@@ -12,14 +12,9 @@ Swappi is a web app that lets users seamlessly transfer playlists between Spotif
 
 ## Installation
 
-1. Navigate to the frontend directory:
+Install dependencies:
 ```bash
-cd frontend
-```
-
-2. Install dependencies:
-```bash
-npm install
+cd frontend && npm install
 ```
 
 ## Running the App
